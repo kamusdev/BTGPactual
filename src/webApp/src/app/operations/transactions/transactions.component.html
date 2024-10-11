@@ -1,0 +1,54 @@
+<div class="row">
+
+  <div class="col-sm-12">
+
+    <div class="col-xl-12">
+      <app-card cardTitle="" [options]="false" blockClass="table-border-style">
+        <div class="table-container">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Id Transacción</th>
+                  <th>Fondo</th>
+                  <th>Id Cuenta</th>
+                  <th>Fecha</th>
+                  <th>Tipo Operacion</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let t of tmptransactions">
+                  <td>{{t.Id}}</td>
+                  <td>{{
+                    t.FundId === 1 ? 'FPV_BTG_PACTUAL_RECAUDADORA' :
+                    t.FundId === 2 ? 'FPV_BTG_PACTUAL_ECOPETROL' :
+                    t.FundId === 3 ? 'DEUDAPRIVADA' :
+                    t.FundId === 4 ? 'FDO-ACCIONES' :
+                    t.FundId === 5 ? 'FPV_BTG_PACTUAL_DINAMICA' : 'Sin valor'
+                  }}</td>
+                  <td>{{t.MandateId}}</td>
+                  <td>{{t.Date | date:'MM/dd/yyyy'}}</td>
+                  <td>{{t.OperationType === 1 ? 'Apertura' : 'Cancelación'}}</td>
+                  <td>{{t.Value | currency}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </app-card>
+    </div>
+
+
+
+  </div>
+
+</div>
+
+<!-- <pre>
+  {{tmptransactions | json}}
+</pre>
+
+<pre>
+  {{tmpfunds | json}}
+</pre> -->

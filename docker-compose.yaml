@@ -1,0 +1,31 @@
+services:
+  dynamodb:
+    image: amazon/dynamodb-local
+    container_name: dynamodb_local
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/home/dynamodblocal/data
+    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath /home/dynamodblocal/data"
+    networks:
+      - dynamodb_network
+
+  dynamodb-init:
+    image: amazon/aws-cli
+    container_name: dynamodb_init
+    depends_on:
+      - dynamodb
+    volumes:
+      - ./create-table-fondos.sh:/tmp/create-table-fondos.sh
+      - ./seed-table-fondos.sh:/tmp/seed-table-fondos.sh
+    entrypoint: ["sh", "-c", "sleep 5 && /tmp/create-table-fondos.sh && /tmp/seed-table-fondos.sh"]
+    environment:
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=dummy
+      - AWS_SECRET_ACCESS_KEY=dummy
+    networks:
+      - dynamodb_network
+
+networks:
+  dynamodb_network:
+    driver: bridge

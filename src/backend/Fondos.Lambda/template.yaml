@@ -1,0 +1,80 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Fondos API Lambda
+
+Globals:
+  Function:
+    Timeout: 100
+
+Resources:
+  AWSApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: dev-fondos-api
+      OpenApiVersion: 3.0.1
+      StageName: dev
+      Cors:
+        AllowMethods: "'POST,GET,OPTIONS'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        AllowOrigin: "'*'"
+
+  Fondos:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !ImportValue LambdaExecutionRoleArn
+      FunctionName: fondos-api
+      PackageType: Image
+      MemorySize: 256
+      AutoPublishAlias: "LATEST"
+      ProvisionedConcurrencyConfig:
+        ProvisionedConcurrentExecutions: 1
+      Events:
+        ClientById:
+          Type: Api
+          Properties:
+            Path: /clients/{id}
+            Method: GET
+            RestApiId:
+              Ref: AWSApiGateway
+        Funds:
+          Type: Api
+          Properties:
+            Path: /funds
+            Method: GET
+            RestApiId:
+              Ref: AWSApiGateway
+        Opening:
+          Type: Api
+          Properties:
+            Path: /opening
+            Method: POST
+            RestApiId:
+              Ref: AWSApiGateway
+        Closure:
+          Type: Api
+          Properties:
+            Path: /closure
+            Method: POST
+            RestApiId:
+              Ref: AWSApiGateway
+        Mandates:
+          Type: Api
+          Properties:
+            Path: /mandates
+            Method: GET
+            RestApiId:
+              Ref: AWSApiGateway
+        Transactions:
+          Type: Api
+          Properties:
+            Path: /transactions
+            Method: GET
+            RestApiId:
+              Ref: AWSApiGateway
+    Metadata:
+      DockerTag: FondosApi
+      DockerContext: .
+      Dockerfile: Dockerfile
+      DockerBuildArgs:
+        SAM_BUILD_MODE: run

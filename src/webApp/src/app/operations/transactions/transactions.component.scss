@@ -1,0 +1,9 @@
+.table-container {
+  max-height: 700px; /* Define la altura máxima del contenedor */
+  overflow-y: auto;  /* Añade barra de desplazamiento vertical si es necesario */
+  overflow-x: auto;  /* Añade barra de desplazamiento horizontal si es necesario */
+}
+
+table {
+  width: 100%; /* Asegura que la tabla ocupe todo el ancho del contenedor */
+}

@@ -1,0 +1,46 @@
+<h1>{{this.tmpClients.Name}} - Saldo: {{this.tmpClients.Balance | currency}}</h1>
+
+<app-card cardTitle="Apertura">
+
+
+  <form [formGroup]="formGroup" (ngSubmit)="saveRecord()">
+
+    <div class="row">
+
+      <div class="col-md-3" *ngIf="tmpfunds && tmpfunds.length > 0">
+        <label for="InputFondolabel">Seleccione el Fondo</label>
+        <select class="form-control" id="InputFondoSelect" (change)="fondoChanged($event)">
+          <option *ngFor="let f of tmpfunds" [value]="f.Id">{{f.Name}} - {{f.Category}}</option>
+        </select>
+      </div>
+
+
+      <div class="col-md-3">
+        <label for="InputFechaAperturalabel">Fecha de Apertura</label>
+        <input type="text" class="form-control" formControlName="fechaApertura" id="InputFechaAperturaText">
+      </div>
+
+      <div class="col-md-3">
+        <label for="InputValorAperturalabel">Valor de Apertura</label>
+        <input type="text" class="form-control" id="InputValorAperturaText" formControlName="valorApertura" (keypress)="validarNumeros($event)">
+      </div>
+
+
+    </div>
+
+    <div class="row">
+      <div class="col-md-3">
+        <button type="submit" class="btn btn-primary">Guardar</button>
+      </div>
+    </div>
+  </form>
+
+</app-card>
+
+<!-- <pre>
+  {{tmpfunds | json}}
+</pre>
+
+<pre>
+  {{tmpClients | json}}
+</pre> -->

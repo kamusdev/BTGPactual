@@ -1,0 +1,168 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: CloudFormation template to create the needed resources.
+
+Resources:
+  FondosTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: FondosBTG
+      AttributeDefinitions:
+        - AttributeName: pk
+          AttributeType: S
+        - AttributeName: sk
+          AttributeType: S
+      KeySchema:
+        - AttributeName: pk
+          KeyType: HASH
+        - AttributeName: sk
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+  DataBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: btg-prueba-pactual
+      AccessControl: Private
+      VersioningConfiguration:
+        Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  SeedLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: SeedDynamoDBPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                Resource: !GetAtt FondosTable.Arn
+
+  SeedDynamoDBLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: SeedDynamoDBLambda
+      Handler: index.handler
+      Role: !GetAtt SeedLambdaExecutionRole.Arn
+      Code:
+        ZipFile: |
+          import json
+          import boto3
+
+          dynamodb = boto3.resource('dynamodb')
+          table = dynamodb.Table('FondosBTG')
+
+          def handler(event, context):
+              items = [
+                  {
+                      'pk': 'F',
+                      'sk': '1',
+                      'name': 'FPV_BTG_PACTUAL_RECAUDADORA',
+                      'minValue': 75000,
+                      'category': 'FPV'
+                  },
+                  {
+                      'pk': 'F',
+                      'sk': '2',
+                      'name': 'FPV_BTG_PACTUAL_ECOPETROL',
+                      'minValue': 125000,
+                      'category': 'FPV'
+                  },
+                  {
+                      'pk': 'F',
+                      'sk': '3',
+                      'name': 'DEUDAPRIVADA',
+                      'minValue': 50000,
+                      'category': 'FIC'
+                  },
+                  {
+                      'pk': 'F',
+                      'sk': '4',
+                      'name': 'FDO-ACCIONES',
+                      'minValue': 250000,
+                      'category': 'FIC'
+                  },
+                  {
+                      'pk': 'F',
+                      'sk': '5',
+                      'name': 'FPV_BTG_PACTUAL_DINAMICA',
+                      'minValue': 100000,
+                      'category': 'FPV'
+                  },
+                  {
+                      'pk': 'C',
+                      'sk': '1',
+                      'name': 'Luis Fernando Arbelaez Rojas',
+                      'email': 'anewdev@gmail.com',
+                      'balance': 500000
+                  }
+              ]
+              for item in items:
+                  table.put_item(Item=item)
+
+              return {
+                  'statusCode': 200,
+                  'body': json.dumps('Seed data inserted successfully!')
+              }
+
+      Runtime: python3.9
+      Timeout: 60
+
+  LambdaExecutionRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+              Action:
+                - sts:AssumeRole
+        Path: "/"
+        RoleName: "LambdaExecutionRole"
+        Policies:
+          - PolicyName: DynamoLambda
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                - Effect: Allow
+                  Action: "dynamodb:*"
+                  Resource:
+                    - !GetAtt FondosTable.Arn
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  DevECRFondosApi:
+      Type: AWS::ECR::Repository
+      Properties:
+        RepositoryName: fondos/dev-fondos-api
+
+Outputs:
+  TableName:
+    Description: "Name of the created DynamoDB table"
+    Value: !Ref FondosTable
+  S3BucketName:
+    Description: "Name of the created S3 bucket"
+    Value: !Ref DataBucket
+  LambdaExecutionRole:
+    Description: Lambda Role ARN
+    Value: !GetAtt LambdaExecutionRole.Arn
+    Export:
+      Name: LambdaExecutionRoleArn

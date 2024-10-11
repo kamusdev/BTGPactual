@@ -1,0 +1,12 @@
+version = 0.1
+
+[dev]
+[dev.deploy]
+[dev.deploy.parameters]
+stack_name = "dev-fondos-api"
+s3_bucket = "btg-prueba-pactual"
+s3_prefix = "fondos-api/dev"
+region = "us-east-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+image_repositories = ["Fondos=764912551971.dkr.ecr.us-east-1.amazonaws.com/fondos/dev-fondos-api"]

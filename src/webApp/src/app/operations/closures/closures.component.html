@@ -1,0 +1,41 @@
+<h1>{{this.tmpClients.Name}} - Saldo: {{this.tmpClients.Balance | currency}}</h1>
+<div class="col-sm-12">
+
+  <div class="col-xl-12">
+    <app-card cardTitle="Listado de Cuentas Activas" [options]="false" blockClass="table-border-style">
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Id Cuenta</th>
+              <th>Fondo</th>
+              <th>Fecha</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let t of tmpMandates">
+              <td>{{t.Id}}</td>
+              <td>{{
+                    t.FundId === 1 ? 'FPV_BTG_PACTUAL_RECAUDADORA' :
+                    t.FundId === 2 ? 'FPV_BTG_PACTUAL_ECOPETROL' :
+                    t.FundId === 3 ? 'DEUDAPRIVADA' :
+                    t.FundId === 4 ? 'FDO-ACCIONES' :
+                    t.FundId === 5 ? 'FPV_BTG_PACTUAL_DINAMICA' : 'Sin valor'
+                  }}</td>
+              <td>{{t.Date | date:'MM/dd/yyyy'}}</td>
+              <td>{{t.Value | currency}}</td>
+              <td><button type="button" class="btn btn-primary" (click)="Cancelacion(t)">Cancelar</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </app-card>
+  </div>
+
+</div>
+
+
+<!-- <pre>
+  {{tmpMandates | json}}
+</pre> -->
